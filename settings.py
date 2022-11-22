@@ -6,5 +6,5 @@ critical_errs = [
 '500',
 "<class 'aiohttp.client_exceptions.ClientConnectorCertificateError'>",
 "<class 'aiohttp.client_exceptions.ClientConnectorSSLError'>",
-"<class 'aiohttp.client_exceptions.ClientConnectorError'>"
+"<class 'aiohttp.client_exceptions.ClientConnectorError'>",
 ]
