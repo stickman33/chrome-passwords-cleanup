@@ -6,7 +6,7 @@ import aiohttp
 import settings
 
 # path_to_csv = 'C:\\Users\\ussre\\Documents\\ChromePasswords.csv'
-path_to_new_csv = 'C:\\Users\\ussre\\Documents\\new_ChromePasswords.csv'
+# path_to_new_csv = "D:\\Documents\\new_ChromePasswords.csv"
 
 
 def csv_list(path_to_csv):
@@ -28,50 +28,51 @@ def append_dict(dictionary, key, value):
 
 
 async def check(url, session, length, exm, bad_sites):
-    global counter
-    counter = 1
+
+
     session: aiohttp.ClientSession
     try:
         async with session.get(url, timeout=180) as response:
             status_code = str(response.status)
+
             # print(url + ' ' + status_code)
             if status_code.startswith('5') | int(status_code) == 404:
                 append_dict(bad_sites, status_code, url)
 
-            exm.text_browser.append(f'{counter} of {length} sites answered')
-            print(f'{counter} of {length} sites answered')
-            counter += 1
             return status_code
     except:
         exc_msg = str(sys.exc_info()[0])
         # print(url + ' ' + exc_msg)
         append_dict(bad_sites, exc_msg, url)
 
-    exm.text_browser.append(f'{counter} of {length} sites answered')
-    print(f'{counter} of {length} sites answered')
-    counter += 1
     return bad_sites
 
 
-async def multiprocessing_func(url_list, exm, bad_sites):
+async def multiprocessing_func(url_list, exm, bad_sites, length):
+    global counter
+    counter = 0
+
     tasks = []
     async with aiohttp.ClientSession(trust_env=True) as session:
         for i in url_list:
-            tasks.append(asyncio.create_task(check(i, session, len(url_list), exm, bad_sites)))
+            tasks.append(asyncio.create_task(check(i, session, length, exm, bad_sites)))
             # tasks.append(asyncio.create_task(check(i, session, len(url_list))))
+            counter += 1
+            exm.text_browser.append(f'{counter} of {length} sites answered')
+            print(f'{counter} of {length} sites answered')
 
         return await asyncio.gather(*tasks)
 
 
 def get_list_of_check_sites(bad_sites):
     bad_urls_list = list()
-    list_to_check = list()
+    list_to_check = dict()
     i = 1
     for err, urls in bad_sites.items():
         if err not in settings.critical_errs:
             for url in urls:
-                if url not in list_to_check:
-                    list_to_check.append(url)
+                if url not in list_to_check.items():
+                    list_to_check[i] = url
         else:
             for url in urls:
                 if url not in bad_urls_list:
