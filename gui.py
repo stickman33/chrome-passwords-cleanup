@@ -1,14 +1,14 @@
 import asyncio
+import os
 import sys
 
-from PyQt5 import QtCore
-from PyQt5.QtGui import QIcon
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QMainWindow, QAction, QApplication, QDesktopWidget, QFileDialog, qApp, \
     QTextBrowser, QInputDialog, QLineEdit, QPushButton, QDialog, QMessageBox, QCheckBox, QLabel, QGridLayout, \
     QVBoxLayout, QWidget
 
 import main
-
 
 class Example(QMainWindow):
 
@@ -35,16 +35,21 @@ class Example(QMainWindow):
         fileMenu.addAction(openFile)
         fileMenu.addAction(exitAction)
 
+        font = QFont('Times', 12)
+
         self.text_browser = QTextBrowser(self)
         self.text_browser.setReadOnly(True)
         self.text_browser.setOpenExternalLinks(True)
         self.text_browser.setGeometry(10, 25, 730, 200)
+        self.text_browser.setFont(font)
+
         self.text_browser.append('Hello!')
 
         self.resize(750, 450)
         self.center()
         self.setWindowTitle('Parse alive sites')
         self.show()
+
 
     def center(self):
         qr = self.frameGeometry()
@@ -59,16 +64,23 @@ class Example(QMainWindow):
         self.move(x, y)
 
     def showFileDialog(self):
+        global path_to_csv
         path_to_csv = QFileDialog.getOpenFileName(self, 'Open file', '/home')[0]
         self.text_browser.append(path_to_csv)
-        run(ex, path_to_csv)
+        run(ex)
 
-    def createCheckBoxes(self, list_of_sites):
+
+    def createCheckBoxes(self, list_of_sites, bad_urls_list):
+        self.resultList = bad_urls_list
+
         self.listCheckBox = [''] * len(list_of_sites)
         self.listLabel = list_of_sites
+
         self.title = QLabel()
         self.title.setText('Select not working sites:')
+
         grid = QGridLayout()
+        grid.addWidget(self.title, 0, 0, 1, 40)
 
         for i, v in enumerate(self.listLabel):
             self.listCheckBox[i] = QCheckBox()
@@ -77,9 +89,14 @@ class Example(QMainWindow):
             self.listLabel[i].setOpenExternalLinks(True)
             self.listLabel[i].setText(f'<a href=\'{v}\'>{v}</a>')
 
-            grid.addWidget(self.title, 0, 0)
-            grid.addWidget(self.listCheckBox[i], i + 1, 0)
-            grid.addWidget(self.listLabel[i], i + 1, 1)
+
+            grid.addWidget(self.listCheckBox[i], i + 1, 1)
+            grid.addWidget(self.listLabel[i], i + 1, 2)
+
+        self.buttonOk = QPushButton("OK")
+        self.buttonOk.clicked.connect(self.checkboxChanged)
+
+        grid.addWidget(self.buttonOk, 10, 0, 1, 2)
 
         # self.button = QPushButton("Check CheckBox")
         # self.button.clicked.connect(self.checkboxChanged)
@@ -87,10 +104,23 @@ class Example(QMainWindow):
 
         # grid.addWidget(self.button, 10, 0, 1, 2)
         # grid.addWidget(self.labelResult, 11, 0, 1, 2)
+
         self.confirm.setLayout(grid)
 
+    def checkboxChanged(self):
+        for i, v in enumerate(self.listCheckBox):
+            doc = QtGui.QTextDocument()
+            doc.setHtml(self.listLabel[i].text())
+            text = doc.toRawText()
+            if v.checkState():
+                self.resultList.append(text)
+        self.confirm.close()
+        main.remove_invalid_sites(self.resultList, path_to_csv)
+        self.text_browser.append('Done!')
 
-    def showInputDialog(self, list_of_urls):
+
+
+    def showInputDialog(self, list_of_urls, bad_urls_list):
         # self.setGeometry(300, 300, 290, 150)
         # self.resize(750, 450)
         # self.center()
@@ -106,38 +136,32 @@ class Example(QMainWindow):
 
         self.confirm = QDialog()
         self.confirm.setWindowTitle('Check the following web-sites')
-        self.confirm.resize(300, 300)
+        self.confirm.resize(200, 100)
 
-        self.createCheckBoxes(list_of_urls)
+        self.createCheckBoxes(list_of_urls, bad_urls_list)
 
         # self.confirm.setGeometry(300, 300, 290, 150)
 
         self.confirm.show()
 
 
-def run(exm, path):
+def run(window):
+
     bad_sites = {}
-    csv_list = main.csv_list(path)
+    csv_list = main.csv_list(path_to_csv)
     length = len(csv_list)
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(main.multiprocessing_func(csv_list, exm, bad_sites, length))
+        loop.run_until_complete(main.multiprocessing_func(csv_list, window, bad_sites, length))
     except KeyboardInterrupt:
         pass
     list_to_check, bad_urls_list = main.get_list_of_check_sites(bad_sites)
 
-    # if list_to_check is not None:
-    #     print('Check the following web-sites manually and input not working ones by their indexes:')
-    #     exm.text_browser.append('')
-    #     exm.text_browser.append('Check the following web-sites manually and input not working ones by their indexes:')
-    #
-    # for index_of_site, site_url in list_to_check.items():
-    #     print(f'{index_of_site}. {site_url}')
-    #     exm.text_browser.append(f'{index_of_site}. <a href=\'{site_url}\'>{site_url}</a>')
+    window.showInputDialog(list_to_check, bad_urls_list)
 
-    exm.showInputDialog(list_to_check)
+
     # print(list_to_check)
 
 if __name__ == '__main__':

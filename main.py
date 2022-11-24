@@ -1,5 +1,6 @@
 import asyncio
 import csv
+import os
 import sys
 
 import aiohttp
@@ -80,74 +81,24 @@ def get_list_of_check_sites(bad_sites):
     return list_to_check, bad_urls_list
 
 
-# def remove_indexes():
-#     def check_int(s):
-#         if s[0] in ('-', '+'):
-#             return s[1:].isdigit()
-#         return s.isdigit()
-#
-#     for index_of_site, site_url in list_of_check_sites.items():
-#         print(f'{index_of_site}. {site_url}')
-#         exm.text_browser.append(f'{index_of_site}. {site_url}')
-#
-#
-#     print('Input indexes (empty str to exit): ')
-#     i = 0
-#     while i < len(list_of_check_sites.keys()):
-#         try:
-#             input_num = input()
-#             if not check_int(input_num):
-#                 print('Wrong index')
-#                 i = 0
-#             elif int(input_num) > len(list_of_check_sites):
-#                 print('Wrong index')
-#                 i = 0
-#             else:
-#                 print(input_num)
-#                 del list_of_check_sites[int(input_num)]
-#                 i += 1
-#         except (EOFError, IndexError):
-#             break
-#
-#     return list_of_check_sites
+def remove_invalid_sites(bad_urls_list, path_to_csv):
+    def newFilePath(file_path):
+        head, tail = os.path.split(file_path)
+        new_file_path = head + '/new_' + tail
+        return new_file_path
 
-# def remove_invalid_sites(path_to_csv):
+    with open(path_to_csv, 'r') as input_csv_file:
+        csv_into_list = []
+        reader = csv.reader(input_csv_file)
+        for row in reader:
+            csv_into_list.append(row)
 
-    # list_of_check_sites = get_list_of_check_sites()
-    #
-    # if len(list_of_check_sites.values()) != 0:
-    #     print('Check the following web-sites manually and input not working ones by their indexes:')
-    #     exm.text_browser.append('Check the following web-sites manually and input not working ones by their indexes:')
-    #
-    # print()
-    #
-    # for index_of_site, site_url in list_of_check_sites.items():
-    #     print(f'{index_of_site}. {site_url}')
-    #     exm.text_browser.append(f'{index_of_site}. <a href=\'{site_url}\'>{site_url}</a>')
-    #     # exm.text_browser.append(f"<a href='{site_url}'>{site_url}</a>")
-    #
-    #
-
-
-    # remove_indexes()
-
-    # for url in list_of_check_sites.values():
-    #     bad_urls_list.append(url)
-
-    # with open(path_to_csv, 'r') as input_csv_file:
-    #     csv_into_list = []
-    #     reader = csv.reader(input_csv_file)
-    #     for row in reader:
-    #         csv_into_list.append(row)
-    #
-    # with open(path_to_new_csv, 'w', newline='',
-    #           encoding='utf-8') as output_csv_file:
-    #     writer = csv.writer(output_csv_file)
-    #     for rows in csv_into_list:
-    #         if rows[1] not in bad_urls_list:
-    #             writer.writerow(rows)
-
-
+    with open(newFilePath(path_to_csv), 'w', newline='',
+              encoding='utf-8') as output_csv_file:
+        writer = csv.writer(output_csv_file)
+        for rows in csv_into_list:
+            if rows[1] not in bad_urls_list:
+                writer.writerow(rows)
 
 
 # start_time = time.time()
