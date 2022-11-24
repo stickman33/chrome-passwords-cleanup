@@ -11,7 +11,7 @@ import settings
 
 
 def csv_list(path_to_csv):
-    with open(path_to_csv) as csvfile:
+    with open(path_to_csv, 'r', encoding='utf-8') as csvfile:
         pwd_list = []
 
         reader = csv.DictReader(csvfile)
@@ -87,7 +87,7 @@ def remove_invalid_sites(bad_urls_list, path_to_csv):
         new_file_path = head + '/new_' + tail
         return new_file_path
 
-    with open(path_to_csv, 'r') as input_csv_file:
+    with open(path_to_csv, 'r', encoding='utf-8') as input_csv_file:
         csv_into_list = []
         reader = csv.reader(input_csv_file)
         for row in reader:

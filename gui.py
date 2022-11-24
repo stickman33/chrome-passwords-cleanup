@@ -1,8 +1,10 @@
 import asyncio
 import os
 import sys
+import traceback
 
 from PyQt5 import QtCore, QtGui
+from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QMainWindow, QAction, QApplication, QDesktopWidget, QFileDialog, qApp, \
     QTextBrowser, QInputDialog, QLineEdit, QPushButton, QDialog, QMessageBox, QCheckBox, QLabel, QGridLayout, \
@@ -67,7 +69,8 @@ class Example(QMainWindow):
         global path_to_csv
         path_to_csv = QFileDialog.getOpenFileName(self, 'Open file', '/home')[0]
         self.text_browser.append(path_to_csv)
-        run(ex)
+        self.doAction(ex)
+        # run(ex)
 
 
     def createCheckBoxes(self, list_of_sites, bad_urls_list):
@@ -96,7 +99,7 @@ class Example(QMainWindow):
         self.buttonOk = QPushButton("OK")
         self.buttonOk.clicked.connect(self.checkboxChanged)
 
-        grid.addWidget(self.buttonOk, 10, 0, 1, 2)
+        grid.addWidget(self.buttonOk, len(list_of_sites) + 10, 0, 1, 2)
 
         # self.button = QPushButton("Check CheckBox")
         # self.button.clicked.connect(self.checkboxChanged)
@@ -144,28 +147,59 @@ class Example(QMainWindow):
 
         self.confirm.show()
 
+    def doAction(self, window):
+        bad_sites = {}
+        csv_list = main.csv_list(path_to_csv)
+        length = len(csv_list)
+        self.worker = MainBackgroundThread(csv_list, window, bad_sites, length)
+        self.worker.start()
 
-def run(window):
+        list_to_check, bad_urls_list = main.get_list_of_check_sites(bad_sites)
 
-    bad_sites = {}
-    csv_list = main.csv_list(path_to_csv)
-    length = len(csv_list)
+        self.showInputDialog(list_to_check, bad_urls_list)
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        loop.run_until_complete(main.multiprocessing_func(csv_list, window, bad_sites, length))
-    except KeyboardInterrupt:
-        pass
-    list_to_check, bad_urls_list = main.get_list_of_check_sites(bad_sites)
+# def run(window):
+    # bad_sites = {}
+    # csv_list = main.csv_list(path_to_csv)
+    # length = len(csv_list)
 
-    window.showInputDialog(list_to_check, bad_urls_list)
+    # loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    # try:
+    #     loop.run_until_complete(main.multiprocessing_func(csv_list, window, bad_sites, length))
+    # except KeyboardInterrupt:
+    #     pass
+
+    # window.doAction(csv_list, window, bad_sites, length)
+    #
+    # list_to_check, bad_urls_list = main.get_list_of_check_sites(bad_sites)
+    #
+    # window.showInputDialog(list_to_check, bad_urls_list)
 
 
-    # print(list_to_check)
+class MainBackgroundThread(QThread):
+    def __init__(self, csv_list, window, bad_sites, length):
+        QThread.__init__(self)
+        self.csv_list, self.window, self.bad_sites, self.length = csv_list, window, bad_sites, length
+    def run(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(main.multiprocessing_func(self.csv_list, self.window, self.bad_sites, self.length))
+        except Exception as exc:
+            print(exc)
+
+
+if QtCore.QT_VERSION >= 0x50501:
+    def excepthook(type_, value, traceback_):
+        traceback.print_exception(type_, value, traceback_)
+        QtCore.qFatal('')
+sys.excepthook = excepthook
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Example()
     ex.show()
     sys.exit(app.exec_())
+
+
