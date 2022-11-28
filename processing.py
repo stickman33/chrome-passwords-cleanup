@@ -6,9 +6,11 @@ import sys
 import aiohttp
 import settings
 
+
 # path_to_csv = 'C:\\Users\\ussre\\Documents\\ChromePasswords.csv'
 # path_to_new_csv = "D:\\Documents\\new_ChromePasswords.csv"
 
+# sem = asyncio.Semaphore(180)
 
 def csv_list(path_to_csv):
     with open(path_to_csv, 'r', encoding='utf-8') as csvfile:
@@ -31,29 +33,33 @@ def append_dict(dictionary, key, value):
 async def check(url, session, bad_sites, exm, length):
     global counter
     counter = 0
-
     session: aiohttp.ClientSession
     try:
         async with session.get(url, timeout=180) as response:
+            counter += 1
             status_code = str(response.status)
 
-            if status_code.startswith('5') | int(status_code) == 404:
+            # if status_code.startswith('5') | int(status_code) == 404:
+            if status_code.startswith('5'):
                 append_dict(bad_sites, status_code, url)
-            # return status_code
+
+            print(f'{counter} of {length} sites answered. {url}')
+            exm.signal_accept(counter * 100 / length)
     except:
         exc_msg = str(sys.exc_info()[0])
         append_dict(bad_sites, exc_msg, url)
+        counter += 1
 
-    counter += 1
-    exm.text_browser.append(f'{counter} of {length} sites answered')
-    print(f'{counter} of {length} sites answered')
+        print(f'{counter} of {length} sites answered. {url} {exc_msg}')
+
+    # print(f'{counter} of {length} sites answered. {url}')
+    # exm.signal_accept(counter * 100/length)
     return bad_sites
 
 
 async def multiprocessing_func(url_list, exm, bad_sites, length):
     # global counter
     # counter = 0
-
     tasks = []
     async with aiohttp.ClientSession(trust_env=True) as session:
         for i in url_list:
@@ -108,11 +114,9 @@ def remove_invalid_sites(bad_urls_list, path_to_csv):
             if rows[1] not in bad_urls_list:
                 writer.writerow(rows)
 
-
 # start_time = time.time()
 # loop = asyncio.get_event_loop()
 # loop.run_until_complete(multiprocessing_func(csv_list()))
 # remove_invalid_sites()
 
 # print(f'--- {round((time.time() - start_time) / 60, 2)} minutes ---')
-

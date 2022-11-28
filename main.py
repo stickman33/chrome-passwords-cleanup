@@ -1,16 +1,33 @@
 import asyncio
 import os
 import sys
+import time
 import traceback
 
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QMainWindow, QAction, QApplication, QDesktopWidget, QFileDialog, qApp, \
     QTextBrowser, QInputDialog, QLineEdit, QPushButton, QDialog, QMessageBox, QCheckBox, QLabel, QGridLayout, \
-    QVBoxLayout, QWidget
+    QVBoxLayout, QWidget, QProgressBar
 
 import processing
+
+
+class Thread(QThread):
+    _signal = pyqtSignal(int)
+
+    def __init__(self):
+        super(Thread, self).__init__()
+
+    # def __del__(self):
+    #     self.wait()
+
+    def run(self):
+        for i in range(100):
+            time.sleep(0.1)
+            self._signal.emit(i)
+
 
 class Example(QMainWindow):
 
@@ -45,13 +62,30 @@ class Example(QMainWindow):
         self.text_browser.setGeometry(10, 25, 730, 200)
         self.text_browser.setFont(font)
 
+        self.pbar = QProgressBar(self)
+        self.pbar.setValue(0)
+        self.vbox = QVBoxLayout()
+        self.vbox.addWidget(self.pbar)
+        self.pbar.setGeometry(10, 250, 200, 30)
+        self.pbar.hide()
+
         self.text_browser.append('Hello!')
+        # self.signal_accept(98)
+
+        self.thread = Thread()
+        # self.thread._signal.connect(self.signal_accept)
+        self.thread.start()
 
         self.resize(750, 450)
         self.center()
         self.setWindowTitle('Parse alive sites')
+
         self.show()
 
+    def signal_accept(self, msg):
+        self.pbar.setValue(int(msg))
+        if self.pbar.value() == 99:
+            self.pbar.setValue(0)
 
     def center(self):
         qr = self.frameGeometry()
@@ -68,10 +102,9 @@ class Example(QMainWindow):
     def showFileDialog(self):
         global path_to_csv
         path_to_csv = QFileDialog.getOpenFileName(self, 'Open file', '/home')[0]
-        self.text_browser.append(path_to_csv)
+        self.text_browser.append(f'Chosen file: {path_to_csv}')
         self.doAction(ex)
         # run(ex)
-
 
     def createCheckBoxes(self, list_of_sites, bad_urls_list):
         self.resultList = bad_urls_list
@@ -91,7 +124,6 @@ class Example(QMainWindow):
             self.listLabel[i] = QLabel()
             self.listLabel[i].setOpenExternalLinks(True)
             self.listLabel[i].setText(f'<a href=\'{v}\'>{v}</a>')
-
 
             grid.addWidget(self.listCheckBox[i], i + 1, 1)
             grid.addWidget(self.listLabel[i], i + 1, 2)
@@ -114,15 +146,14 @@ class Example(QMainWindow):
         processing.remove_invalid_sites(self.resultList, path_to_csv)
         self.text_browser.append('Done!')
 
-
     def doAction(self, window):
         bad_sites = {}
         csv_list = processing.csv_list(path_to_csv)
         length = len(csv_list)
         self.worker = MainBackgroundThread(csv_list, window, bad_sites, length)
+        self.pbar.show()
         self.worker.finished.connect(self.inputDialog)
         self.worker.start()
-
 
     def inputDialog(self):
         self.confirm = QDialog()
@@ -158,16 +189,16 @@ class MainBackgroundThread(QThread):
 
             print(res)
 
+
 # if QtCore.QT_VERSION >= 0x50501:
 #     def excepthook(type_, value, traceback_):
 #         traceback.print_exception(type_, value, traceback_)
 #         QtCore.qFatal('')
 # sys.excepthook = excepthook
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Example()
     ex.show()
     sys.exit(app.exec_())
-
-
