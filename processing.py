@@ -30,9 +30,11 @@ def append_dict(dictionary, key, value):
         dictionary[key] = values
 
 
+counter = 0
+
+
 async def check(url, session, bad_sites, exm, length):
     global counter
-    counter = 0
     session: aiohttp.ClientSession
     try:
         async with session.get(url, timeout=180) as response:
@@ -49,11 +51,8 @@ async def check(url, session, bad_sites, exm, length):
         exc_msg = str(sys.exc_info()[0])
         append_dict(bad_sites, exc_msg, url)
         counter += 1
-
         print(f'{counter} of {length} sites answered. {url} {exc_msg}')
 
-    # print(f'{counter} of {length} sites answered. {url}')
-    # exm.signal_accept(counter * 100/length)
     return bad_sites
 
 

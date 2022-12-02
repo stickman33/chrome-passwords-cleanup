@@ -1,15 +1,13 @@
 import asyncio
-import os
 import sys
 import time
-import traceback
 
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtGui
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QMainWindow, QAction, QApplication, QDesktopWidget, QFileDialog, qApp, \
-    QTextBrowser, QInputDialog, QLineEdit, QPushButton, QDialog, QMessageBox, QCheckBox, QLabel, QGridLayout, \
-    QVBoxLayout, QWidget, QProgressBar
+    QTextBrowser, QPushButton, QDialog, QCheckBox, QLabel, QGridLayout, \
+    QVBoxLayout, QProgressBar
 
 import processing
 
@@ -78,13 +76,13 @@ class Example(QMainWindow):
 
         self.resize(750, 450)
         self.center()
-        self.setWindowTitle('Parse alive sites')
+        self.setWindowTitle('Chrome passwords cleanup')
 
         self.show()
 
     def signal_accept(self, msg):
         self.pbar.setValue(int(msg))
-        if self.pbar.value() == 99:
+        if self.pbar.value() == 100:
             self.pbar.setValue(0)
 
     def center(self):
