@@ -1,4 +1,5 @@
 import asyncio
+import os
 import sys
 import time
 
@@ -27,6 +28,17 @@ class Thread(QThread):
             self._signal.emit(i)
 
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
 class Example(QMainWindow):
 
     def __init__(self):
@@ -37,13 +49,14 @@ class Example(QMainWindow):
         self.statusBar()
         menubar = self.menuBar()
 
-        openFile = QAction(QIcon("icons/62917-open-file-folder-icon.png"), 'Open', self)
+        folder_icon = QIcon(resource_path("open-file-folder-icon.png"))
+        openFile = QAction(folder_icon, 'Open', self)
         openFile.setShortcut('Ctrl+O')
         openFile.setStatusTip('Open new File')
         openFile.triggered.connect(self.showFileDialog)
 
-        exitAction = QAction(QIcon("icons/png-red-round-close-x-icon-31631915146jpppmdzihs.png")
-                             , '&Exit', self)
+        exit_icon = QIcon(resource_path("red-round-close-x-icon.png"))
+        exitAction = QAction(exit_icon, '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(qApp.quit)
