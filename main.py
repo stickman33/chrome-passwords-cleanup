@@ -33,7 +33,6 @@ def resource_path(relative_path):
         base_path = sys._MEIPASS
     else:
         base_path = os.path.abspath(".")
-
     return os.path.join(base_path, relative_path)
 
 
@@ -41,9 +40,9 @@ class Example(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.initUI()
+        self.init_UI()
 
-    def initUI(self):
+    def init_UI(self):
         self.statusBar()
         menubar = self.menuBar()
 
@@ -51,7 +50,7 @@ class Example(QMainWindow):
         openFile = QAction(folder_icon, 'Open', self)
         openFile.setShortcut('Ctrl+O')
         openFile.setStatusTip('Open new File')
-        openFile.triggered.connect(self.showFileDialog)
+        openFile.triggered.connect(self.show_file_dialog)
 
         exit_icon = QIcon(resource_path("icons/red-round-close-x-icon.png"))
         exitAction = QAction(exit_icon, '&Exit', self)
@@ -92,7 +91,7 @@ class Example(QMainWindow):
 
     def signal_accept(self, msg):
         self.pbar.setValue(int(msg))
-        if self.pbar.value() == 100:
+        if self.pbar.value() == 99:
             self.pbar.setValue(0)
 
     def center(self):
@@ -101,24 +100,24 @@ class Example(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    def centerPos(self):
+    def center_pos(self):
         qr = QMainWindow.window(self).frameGeometry()
         x = (qr.width() - self.width()) / 2
         y = (qr.height() - self.height()) / 2
         self.move(x, y)
 
-    def showFileDialog(self):
+    def show_file_dialog(self):
         global path_to_csv
         file_dialog = QFileDialog()
-        path_to_csv = file_dialog.getOpenFileName(self, 'Open file', '/home')[0]
+        path_to_csv = file_dialog.getOpenFileName(self, 'Open file', '')[0]
         if path_to_csv:
             self.text_browser.append(f'Chosen file: {path_to_csv}')
-            self.doAction(ex)
+            self.do_action(ex)
         else:
             file_dialog.close()
         # run(ex)
 
-    def createCheckBoxes(self, list_of_sites, bad_urls_list):
+    def create_checkboxes(self, list_of_sites, bad_urls_list):
         self.resultList = bad_urls_list
 
         self.listCheckBox = [''] * len(list_of_sites)
@@ -141,13 +140,13 @@ class Example(QMainWindow):
             grid.addWidget(self.listLabel[i], i + 1, 2)
 
         self.buttonOk = QPushButton("OK")
-        self.buttonOk.clicked.connect(self.checkboxChanged)
+        self.buttonOk.clicked.connect(self.checkbox_changed)
 
         grid.addWidget(self.buttonOk, len(list_of_sites) + 10, 0, 1, 2)
 
         self.confirm.setLayout(grid)
 
-    def checkboxChanged(self):
+    def checkbox_changed(self):
         for i, v in enumerate(self.listCheckBox):
             doc = QtGui.QTextDocument()
             doc.setHtml(self.listLabel[i].text())
@@ -156,23 +155,24 @@ class Example(QMainWindow):
                 self.resultList.append(text)
         self.confirm.close()
         processing.remove_invalid_sites(self.resultList, path_to_csv)
+        self.text_browser.append('Cleaned password file has been stored in the same location as input one')
         self.text_browser.append('Done!')
 
-    def doAction(self, window):
+    def do_action(self, window):
         bad_sites = {}
         csv_list = processing.csv_list(path_to_csv)
         length = len(csv_list)
         self.worker = MainBackgroundThread(csv_list, window, bad_sites, length)
         self.pbar.show()
-        self.worker.finished.connect(self.inputDialog)
+        self.worker.finished.connect(self.input_dialog)
         self.worker.start()
 
-    def inputDialog(self):
+    def input_dialog(self):
         self.confirm = QDialog()
         self.confirm.setWindowTitle('Check the following web-sites')
         self.confirm.resize(200, 100)
         list_to_check, bad_urls_list = processing.get_list_of_check_sites(self.worker.bad_sites)
-        self.createCheckBoxes(list_to_check, bad_urls_list)
+        self.create_checkboxes(list_to_check, bad_urls_list)
         self.confirm.show()
 
 
@@ -193,7 +193,7 @@ class MainBackgroundThread(QThread):
             res = []
             for t in tasks:
                 try:
-                    r = t.result()  # gives an error!!!
+                    r = t.result()
                 except BaseException as e:
                     res.append(e)
                     continue

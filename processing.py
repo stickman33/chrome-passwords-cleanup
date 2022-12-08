@@ -46,7 +46,7 @@ async def check(url, session, bad_sites, exm, length):
                 append_dict(bad_sites, status_code, url)
 
             print(f'{counter} of {length} sites answered. {url}')
-            exm.signal_accept(counter * 100 / length)
+            exm.signal_accept(counter * 99 / length)
     except:
         exc_msg = str(sys.exc_info()[0])
         append_dict(bad_sites, exc_msg, url)
@@ -95,7 +95,7 @@ def get_list_of_check_sites(bad_sites):
 
 
 def remove_invalid_sites(bad_urls_list, path_to_csv):
-    def newFilePath(file_path):
+    def new_File_Path(file_path):
         head, tail = os.path.split(file_path)
         new_file_path = head + '/new_' + tail
         return new_file_path
@@ -106,7 +106,7 @@ def remove_invalid_sites(bad_urls_list, path_to_csv):
         for row in reader:
             csv_into_list.append(row)
 
-    with open(newFilePath(path_to_csv), 'w', newline='',
+    with open(new_File_Path(path_to_csv), 'w', newline='',
               encoding='utf-8') as output_csv_file:
         writer = csv.writer(output_csv_file)
         for rows in csv_into_list:

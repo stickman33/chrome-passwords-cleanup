@@ -32,7 +32,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Chrome Pass Cleanup',
+    name='Chrome-Pass-Cleanup',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
