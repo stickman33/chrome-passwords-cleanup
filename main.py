@@ -29,8 +29,6 @@ class Thread(QThread):
 
 
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         base_path = sys._MEIPASS
     else:
@@ -49,13 +47,13 @@ class Example(QMainWindow):
         self.statusBar()
         menubar = self.menuBar()
 
-        folder_icon = QIcon(resource_path("open-file-folder-icon.png"))
+        folder_icon = QIcon(resource_path("icons/open-file-folder-icon.png"))
         openFile = QAction(folder_icon, 'Open', self)
         openFile.setShortcut('Ctrl+O')
         openFile.setStatusTip('Open new File')
         openFile.triggered.connect(self.showFileDialog)
 
-        exit_icon = QIcon(resource_path("red-round-close-x-icon.png"))
+        exit_icon = QIcon(resource_path("icons/red-round-close-x-icon.png"))
         exitAction = QAction(exit_icon, '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
@@ -66,7 +64,6 @@ class Example(QMainWindow):
         fileMenu.addAction(exitAction)
 
         font = QFont('Times', 12)
-
         self.text_browser = QTextBrowser(self)
         self.text_browser.setReadOnly(True)
         self.text_browser.setOpenExternalLinks(True)
@@ -112,9 +109,13 @@ class Example(QMainWindow):
 
     def showFileDialog(self):
         global path_to_csv
-        path_to_csv = QFileDialog.getOpenFileName(self, 'Open file', '/home')[0]
-        self.text_browser.append(f'Chosen file: {path_to_csv}')
-        self.doAction(ex)
+        file_dialog = QFileDialog()
+        path_to_csv = file_dialog.getOpenFileName(self, 'Open file', '/home')[0]
+        if path_to_csv:
+            self.text_browser.append(f'Chosen file: {path_to_csv}')
+            self.doAction(ex)
+        else:
+            file_dialog.close()
         # run(ex)
 
     def createCheckBoxes(self, list_of_sites, bad_urls_list):
