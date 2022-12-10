@@ -7,11 +7,6 @@ import aiohttp
 import settings
 
 
-# path_to_csv = 'C:\\Users\\ussre\\Documents\\ChromePasswords.csv'
-# path_to_new_csv = "D:\\Documents\\new_ChromePasswords.csv"
-
-# sem = asyncio.Semaphore(180)
-
 def csv_list(path_to_csv):
     with open(path_to_csv, 'r', encoding='utf-8') as csvfile:
         pwd_list = []
@@ -45,20 +40,18 @@ async def check(url, session, bad_sites, exm, length):
             if status_code.startswith('5'):
                 append_dict(bad_sites, status_code, url)
 
-            print(f'{counter} of {length} sites answered. {url}')
-            exm.signal_accept(counter * 99 / length)
+            # print(f'{counter} of {length} sites answered. {url}')
+            exm.signal_accept(counter * 100 / length)
     except:
         exc_msg = str(sys.exc_info()[0])
         append_dict(bad_sites, exc_msg, url)
         counter += 1
-        print(f'{counter} of {length} sites answered. {url} {exc_msg}')
+        # print(f'{counter} of {length} sites answered. {url} {exc_msg}')
 
     return bad_sites
 
 
 async def multiprocessing_func(url_list, exm, bad_sites, length):
-    # global counter
-    # counter = 0
     tasks = []
     async with aiohttp.ClientSession(trust_env=True) as session:
         for i in url_list:
@@ -67,11 +60,6 @@ async def multiprocessing_func(url_list, exm, bad_sites, length):
             while future.done():
                 print(future.result())
 
-            # tasks.append(asyncio.create_task(check(i, session, bad_sites, exm, length)))
-
-            # counter += 1
-            # exm.text_browser.append(f'{counter} of {length} sites answered')
-            # print(f'{counter} of {length} sites answered')
 
         return await asyncio.gather(*tasks)
 
@@ -95,6 +83,9 @@ def get_list_of_check_sites(bad_sites):
 
 
 def remove_invalid_sites(bad_urls_list, path_to_csv):
+    global counter
+    counter = 0
+
     def new_File_Path(file_path):
         head, tail = os.path.split(file_path)
         new_file_path = head + '/new_' + tail
@@ -112,10 +103,3 @@ def remove_invalid_sites(bad_urls_list, path_to_csv):
         for rows in csv_into_list:
             if rows[1] not in bad_urls_list:
                 writer.writerow(rows)
-
-# start_time = time.time()
-# loop = asyncio.get_event_loop()
-# loop.run_until_complete(multiprocessing_func(csv_list()))
-# remove_invalid_sites()
-
-# print(f'--- {round((time.time() - start_time) / 60, 2)} minutes ---')

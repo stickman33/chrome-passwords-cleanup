@@ -6,19 +6,21 @@ This program helps to clean up your passwords by removing not working web-sites 
 ([chrome://settings/passwords](chrome://settings/passwords/)) 
 3. Navigate to the section **Saved Passwords** and click on the three dots on the right. </p>
 <img src="readme-img/chrome_saved_passwords.png" width="450"></p>
-Then click **Export passwords**.</p> 
+Then click **Export passwords**.</p>
 <img src="readme-img/chrome_export_passwords.png" width="150"></p>
 Confirm by clicking **Export passwords** one more time.</p>
 <img src="readme-img/chrome_export_confirm.png" width="400"></p>
 And save your passwords CSV file to some location you want.
 4. Open Chrome Passwords cleanuper and select file you have just saved. **File --> Open**.</p>
 <img src="readme-img/cleanuper_open_file.png" width="200"></p>
-5. Wait until the program check all websites from your passwords file. It can take up to 3 minutes. You can check the 
-progress down below.
+5. Wait until the program check all websites from your passwords file. It can take up to 3 minutes. You can see the
+   progress down below.
+<img src="readme-img/cleanuper_progress.png" width="200"/></p>
 6. After program got answer from all web-sites from the file it will offer you to check manually some of them which gave
-incorrect answer.
-Click on them to open in browser and  mark not working ones.
-7. The program will save new cleanuped file in the same Directory where your original file exists with the _new__ prefix.
+some incorrect answer.
+<img src="readme-img/cleanuper_check.png" width="200"/></p>
+Click on them to open in browser and mark not working ones.
+7. The program will save new cleanuped file in the same directory of input file with the _new__ prefix.
 8. Go back to Chrome, open **Settings --> Privacy and security --> Clear browsing data**
 ([chrome://settings/clearBrowserData](chrome://settings/clearBrowserData)) and mark **Passwords
 and other sign-in data**.</p>

@@ -46,13 +46,15 @@ class Example(QMainWindow):
         self.statusBar()
         menubar = self.menuBar()
 
-        folder_icon = QIcon(resource_path("icons/open-file-folder-icon.png"))
+        self.setWindowIcon(QIcon(resource_path("cleanuper-logo.ico")))
+
+        folder_icon = QIcon(resource_path("open-file-folder-icon.png"))
         openFile = QAction(folder_icon, 'Open', self)
         openFile.setShortcut('Ctrl+O')
         openFile.setStatusTip('Open new File')
         openFile.triggered.connect(self.show_file_dialog)
 
-        exit_icon = QIcon(resource_path("icons/red-round-close-x-icon.png"))
+        exit_icon = QIcon(resource_path("red-round-close-x-icon.png"))
         exitAction = QAction(exit_icon, '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
@@ -62,28 +64,39 @@ class Example(QMainWindow):
         fileMenu.addAction(openFile)
         fileMenu.addAction(exitAction)
 
-        font = QFont('Times', 12)
+
+        # font = QFont('Times', 10)
+        font = QFont()
+        font.setPointSize(10)
         self.text_browser = QTextBrowser(self)
         self.text_browser.setReadOnly(True)
         self.text_browser.setOpenExternalLinks(True)
-        self.text_browser.setGeometry(10, 25, 730, 200)
+        self.text_browser.setGeometry(10, 25, 470, 100)
         self.text_browser.setFont(font)
+
 
         self.pbar = QProgressBar(self)
         self.pbar.setValue(0)
         self.vbox = QVBoxLayout()
         self.vbox.addWidget(self.pbar)
-        self.pbar.setGeometry(10, 250, 200, 30)
+        self.pbar.setGeometry(10, 140, 140, 20)
         self.pbar.hide()
+
 
         self.text_browser.append('Hello!')
         # self.signal_accept(98)
+
+        self.done_label = QLabel(self)
+        self.done_label.setGeometry(10, 160, 200, 30)
+        # self.done_label.hide()
+        # self.done_label.setText('Done!')
 
         self.thread = Thread()
         # self.thread._signal.connect(self.signal_accept)
         self.thread.start()
 
-        self.resize(750, 450)
+        # self.resize(750, 450)
+        self.resize(490, 210)
         self.center()
         self.setWindowTitle('Chrome passwords cleanup')
 
@@ -91,8 +104,8 @@ class Example(QMainWindow):
 
     def signal_accept(self, msg):
         self.pbar.setValue(int(msg))
-        if self.pbar.value() == 99:
-            self.pbar.setValue(0)
+        # if self.pbar.value() == 99:
+        #     self.pbar.setValue(0)
 
     def center(self):
         qr = self.frameGeometry()
@@ -113,6 +126,8 @@ class Example(QMainWindow):
         if path_to_csv:
             self.text_browser.append(f'Chosen file: {path_to_csv}')
             self.do_action(ex)
+            self.signal_accept(0)
+            self.done_label.hide()
         else:
             file_dialog.close()
         # run(ex)
@@ -141,9 +156,7 @@ class Example(QMainWindow):
 
         self.buttonOk = QPushButton("OK")
         self.buttonOk.clicked.connect(self.checkbox_changed)
-
         grid.addWidget(self.buttonOk, len(list_of_sites) + 10, 0, 1, 2)
-
         self.confirm.setLayout(grid)
 
     def checkbox_changed(self):
@@ -155,8 +168,10 @@ class Example(QMainWindow):
                 self.resultList.append(text)
         self.confirm.close()
         processing.remove_invalid_sites(self.resultList, path_to_csv)
-        self.text_browser.append('Cleaned password file has been stored in the same location as input one')
-        self.text_browser.append('Done!')
+        self.done_label.setText('Done!')
+        self.text_browser.append('New passwords file has been saved in the same location as the chosen one.')
+        self.text_browser.append('-' * 25)
+        self.done_label.show()
 
     def do_action(self, window):
         bad_sites = {}
@@ -164,16 +179,25 @@ class Example(QMainWindow):
         length = len(csv_list)
         self.worker = MainBackgroundThread(csv_list, window, bad_sites, length)
         self.pbar.show()
+
         self.worker.finished.connect(self.input_dialog)
         self.worker.start()
 
     def input_dialog(self):
         self.confirm = QDialog()
+        self.confirm.setWindowIcon(QIcon(resource_path("cleanuper-logo.ico")))
         self.confirm.setWindowTitle('Check the following web-sites')
         self.confirm.resize(200, 100)
         list_to_check, bad_urls_list = processing.get_list_of_check_sites(self.worker.bad_sites)
-        self.create_checkboxes(list_to_check, bad_urls_list)
-        self.confirm.show()
+        if len(list_to_check) != 0:
+            self.create_checkboxes(list_to_check, bad_urls_list)
+            self.confirm.show()
+        else:
+            processing.remove_invalid_sites(bad_urls_list, path_to_csv)
+            self.done_label.setText('Done!')
+            self.text_browser.append('New passwords file has been saved in the same location as the chosen one.')
+            self.text_browser.append('-' * 25)
+            self.done_label.show()
 
 
 class MainBackgroundThread(QThread):
@@ -198,7 +222,6 @@ class MainBackgroundThread(QThread):
                     res.append(e)
                     continue
                 res.append(r)
-
             print(res)
 
 
