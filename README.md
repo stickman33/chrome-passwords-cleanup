@@ -13,13 +13,13 @@ Confirm by clicking **Export passwords** one more time.</p>
 And save your passwords CSV file to some location you want.
 4. Open Chrome Passwords cleanuper and select file you have just saved. **File --> Open**.</p>
 <img src="readme-img/cleanuper_open_file.png" width="200"></p>
-5. Wait until the program check all websites from your passwords file. It can take up to 3 minutes. You can see the
-   progress down below.
-<img src="readme-img/cleanuper_progress.png" width="200"/></p>
+5. Wait until the program check all websites from your passwords file. It can take up to 3 minutes. 
+You can see the progress down below.</p>
+<img src="readme-img/cleanuper_progress.png" width="400"/></p>
 6. After program got answer from all web-sites from the file it will offer you to check manually some of them which gave
-some incorrect answer.
-<img src="readme-img/cleanuper_check.png" width="200"/></p>
-Click on them to open in browser and mark not working ones.
+some incorrect answer.</p>
+<img src="readme-img/cleanuper_check.png" width="400"/></p>
+Click on them to open in browser and mark not working ones.</p>
 7. The program will save new cleanuped file in the same directory of input file with the _new__ prefix.
 8. Go back to Chrome, open **Settings --> Privacy and security --> Clear browsing data**
 ([chrome://settings/clearBrowserData](chrome://settings/clearBrowserData)) and mark **Passwords
