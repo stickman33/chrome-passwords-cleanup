@@ -1,5 +1,7 @@
 # Description
-This program helps to clean up your passwords by removing not working web-sites in Chrome web browser.
+If you saved your passwords for years and have a mess in your Chrome password store
+it may help you a bit to put things in order. This program helps to clean up your passwords by removing not working 
+web-sites in Chrome web browser.
 # Usage
 1. Open Chrome browser. 
 2. Go to the **Settings --> Autofill --> Password Manager** 
