@@ -18,7 +18,7 @@ You can see the progress down below.</p>
 <img src="readme-img/cleanuper_progress.png" width="400"/></p>
 6. After program got answer from all web-sites from the file it will offer you to check manually some of them which gave
 some incorrect answer.</p>
-<img src="readme-img/cleanuper_check.png" width="300"/></p>
+<img src="readme-img/cleanuper_check.png" width="400"/></p>
 Click on them to open in browser and mark not working ones.</p>
 7. The program will save new cleanuped file in the same directory of input file with the _new__ prefix.
 8. Go back to Chrome, open **Settings --> Privacy and security --> Clear browsing data**
