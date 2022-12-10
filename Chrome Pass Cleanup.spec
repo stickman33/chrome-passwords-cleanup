@@ -20,8 +20,9 @@ a = Analysis(
     noarchive=False,
 )
 
-a.datas += [("open-file-folder-icon.png", "D:\\my projects\\parse-alive-sites\\icons\\open-file-folder-icon.png", "icons"),
-            ("red-round-close-x-icon.png", "D:\\my projects\\parse-alive-sites\\icons\\red-round-close-x-icon.png", "icons")]
+a.datas += [("open-file-folder-icon.png", "D:\\python\\check_passwords\\icons\\open-file-folder-icon.png", "icons"),
+            ("red-round-close-x-icon.png", "D:\\python\\check_passwords\\icons\\red-round-close-x-icon.png", "icons"),
+            ("cleanuper-logo.ico", "D:\\python\\check_passwords\\icons\\cleanuper-logo.ico", "icons")]
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
@@ -32,7 +33,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Chrome Pass Cleanup',
+    name='Chrome-Pass-Cleanup',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -40,6 +41,7 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
+    icon='D:\\python\\check_passwords\\icons\\cleanuper-logo.ico',
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
