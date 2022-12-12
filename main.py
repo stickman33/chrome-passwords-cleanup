@@ -168,7 +168,6 @@ class Example(QMainWindow):
                 self.resultList.append(text)
         self.confirm.close()
         processing.remove_invalid_sites(self.resultList, path_to_csv)
-        self.done_label.setText('Done!')
         self.text_browser.append('New passwords file has been saved in the same location as the chosen one.')
         self.text_browser.append('-' * 25)
         self.done_label.show()
@@ -180,6 +179,7 @@ class Example(QMainWindow):
         self.worker = MainBackgroundThread(csv_list, window, bad_sites, length)
         self.pbar.show()
 
+        self.done_label.setText('Done!')
         self.worker.finished.connect(self.input_dialog)
         self.worker.start()
 
@@ -194,7 +194,6 @@ class Example(QMainWindow):
             self.confirm.show()
         else:
             processing.remove_invalid_sites(bad_urls_list, path_to_csv)
-            self.done_label.setText('Done!')
             self.text_browser.append('New passwords file has been saved in the same location as the chosen one.')
             self.text_browser.append('-' * 25)
             self.done_label.show()
@@ -212,6 +211,9 @@ class MainBackgroundThread(QThread):
                                                                 self.bad_sites, self.length))
         loop.run_until_complete(asyncio.sleep(0.250))
         loop.close()
+
+
+        self.window.signal_accept(100)
 
         def task_result(tasks):
             res = []
